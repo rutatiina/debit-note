@@ -17,5 +17,12 @@
         "psr-4": {
             "Rutatiina\\DebitNote\\": "src/"
         }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Rutatiina\\DebitNote\\DebitNoteServiceProvider"
+            ]
+        }
     }
 }
