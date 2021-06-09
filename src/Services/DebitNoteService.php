@@ -1,18 +1,18 @@
 <?php
 
-namespace Rutatiina\CreditNote\Services;
+namespace Rutatiina\DebitNote\Services;
 
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Rutatiina\CreditNote\Models\CreditNote;
+use Rutatiina\DebitNote\Models\DebitNote;
 use Rutatiina\FinancialAccounting\Services\AccountBalanceUpdateService;
 use Rutatiina\FinancialAccounting\Services\ContactBalanceUpdateService;
-use Rutatiina\CreditNote\Models\Setting;
+use Rutatiina\DebitNote\Models\Setting;
 use Rutatiina\Tax\Models\Tax;
 
-class CreditNoteService
+class DebitNoteService
 {
     public static $errors = [];
 
@@ -23,7 +23,7 @@ class CreditNoteService
 
     public static function nextNumber()
     {
-        $count = CreditNote::count();
+        $count = DebitNote::count();
         $settings = Setting::first();
 
         return $settings->number_prefix . (str_pad(($count + 1), $settings->minimum_number_length, "0", STR_PAD_LEFT)) . $settings->number_postfix;
@@ -33,7 +33,7 @@ class CreditNoteService
     {
         $taxes = Tax::all()->keyBy('code');
 
-        $txn = CreditNote::findOrFail($id);
+        $txn = DebitNote::findOrFail($id);
         $txn->load('contact', 'items.taxes');
         $txn->setAppends(['taxes']);
 
@@ -80,11 +80,11 @@ class CreditNoteService
 
     public static function store($requestInstance)
     {
-        $data = CreditNoteValidateService::run($requestInstance);
+        $data = DebitNoteValidateService::run($requestInstance);
         //print_r($data); exit;
         if ($data === false)
         {
-            self::$errors = CreditNoteValidateService::$errors;
+            self::$errors = DebitNoteValidateService::$errors;
             return false;
         }
 
@@ -93,7 +93,7 @@ class CreditNoteService
 
         try
         {
-            $Txn = new CreditNote;
+            $Txn = new DebitNote;
             $Txn->tenant_id = $data['tenant_id'];
             $Txn->created_by = Auth::id();
             $Txn->document_name = $data['document_name'];
@@ -124,13 +124,13 @@ class CreditNoteService
             //print_r($data['items']); exit;
 
             //Save the items >> $data['items']
-            CreditNoteItemService::store($data);
+            DebitNoteItemService::store($data);
 
             //Save the ledgers >> $data['ledgers']; and update the balances
             //NOTE >> no need to update ledgers since this is not an accounting entry
 
             //check status and update financial account and contact balances accordingly
-            CreditNoteApprovalService::run($data);
+            DebitNoteApprovalService::run($data);
 
             DB::connection('tenant')->commit();
 
@@ -165,11 +165,11 @@ class CreditNoteService
 
     public static function update($requestInstance)
     {
-        $data = CreditNoteValidateService::run($requestInstance);
+        $data = DebitNoteValidateService::run($requestInstance);
         //print_r($data); exit;
         if ($data === false)
         {
-            self::$errors = CreditNoteValidateService::$errors;
+            self::$errors = DebitNoteValidateService::$errors;
             return false;
         }
 
@@ -178,7 +178,7 @@ class CreditNoteService
 
         try
         {
-            $Txn = CreditNote::with('items', 'ledgers')->findOrFail($data['id']);
+            $Txn = DebitNote::with('items', 'ledgers')->findOrFail($data['id']);
 
             if ($Txn->status == 'Approved')
             {
@@ -228,13 +228,13 @@ class CreditNoteService
             //print_r($data['items']); exit;
 
             //Save the items >> $data['items']
-            CreditNoteItemService::store($data);
+            DebitNoteItemService::store($data);
 
             //Save the ledgers >> $data['ledgers']; and update the balances
-            CreditNoteLedgersService::store($data);
+            DebitNoteLedgersService::store($data);
 
             //check status and update financial account and contact balances accordingly
-            CreditNoteApprovalService::run($data);
+            DebitNoteApprovalService::run($data);
 
             DB::connection('tenant')->commit();
 
@@ -273,7 +273,7 @@ class CreditNoteService
 
         try
         {
-            $Txn = CreditNote::findOrFail($id);
+            $Txn = DebitNote::findOrFail($id);
 
             if ($Txn->status == 'Approved')
             {
@@ -328,7 +328,7 @@ class CreditNoteService
     {
         $taxes = Tax::all()->keyBy('code');
 
-        $txn = CreditNote::findOrFail($id);
+        $txn = DebitNote::findOrFail($id);
         $txn->load('contact', 'items.taxes');
         $txn->setAppends(['taxes']);
 
@@ -377,7 +377,7 @@ class CreditNoteService
 
     public static function approve($id)
     {
-        $Txn = CreditNote::with(['ledgers'])->findOrFail($id);
+        $Txn = DebitNote::with(['ledgers'])->findOrFail($id);
 
         if (strtolower($Txn->status) != 'draft')
         {
@@ -392,10 +392,10 @@ class CreditNoteService
 
         try
         {
-            CreditNoteApprovalService::run($data);
+            DebitNoteApprovalService::run($data);
 
             //update the status of the txn
-            $Txn->status = 'Approved';
+            $Txn->status = 'approved';
             $Txn->save();
 
             DB::connection('tenant')->commit();

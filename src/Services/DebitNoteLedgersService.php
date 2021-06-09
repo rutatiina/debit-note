@@ -1,10 +1,10 @@
 <?php
 
-namespace Rutatiina\CreditNote\Services;
+namespace Rutatiina\DebitNote\Services;
 
-use Rutatiina\CreditNote\Models\CreditNoteLedger;
+use Rutatiina\DebitNote\Models\DebitNoteLedger;
 
-class CreditNoteLedgersService
+class DebitNoteLedgersService
 {
     public static $errors = [];
 
@@ -17,8 +17,8 @@ class CreditNoteLedgersService
     {
         foreach ($data['ledgers'] as &$ledger)
         {
-            $ledger['credit_note_id'] = $data['id'];
-            CreditNoteLedger::create($ledger);
+            $ledger['debit_note_id'] = $data['id'];
+            DebitNoteLedger::create($ledger);
         }
         unset($ledger);
 

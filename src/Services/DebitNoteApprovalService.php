@@ -1,11 +1,11 @@
 <?php
 
-namespace Rutatiina\CreditNote\Services;
+namespace Rutatiina\DebitNote\Services;
 
 use Rutatiina\FinancialAccounting\Services\AccountBalanceUpdateService;
 use Rutatiina\FinancialAccounting\Services\ContactBalanceUpdateService;
 
-trait CreditNoteApprovalService
+trait DebitNoteApprovalService
 {
     public static function run($data)
     {

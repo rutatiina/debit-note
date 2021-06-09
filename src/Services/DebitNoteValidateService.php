@@ -1,12 +1,12 @@
 <?php
 
-namespace Rutatiina\CreditNote\Services;
+namespace Rutatiina\DebitNote\Services;
 
 use Illuminate\Support\Facades\Validator;
 use Rutatiina\Contact\Models\Contact;
-use Rutatiina\CreditNote\Models\Setting;
+use Rutatiina\DebitNote\Models\Setting;
 
-class CreditNoteValidateService
+class DebitNoteValidateService
 {
     public static $errors = [];
 
@@ -67,7 +67,6 @@ class CreditNoteValidateService
 
         $contact = Contact::findOrFail($requestInstance->contact_id);
 
-
         $data['id'] = $requestInstance->input('id', null); //for updating the id will always be posted
         $data['user_id'] = $user->id;
         $data['tenant_id'] = $user->tenant->id;
@@ -89,7 +88,6 @@ class CreditNoteValidateService
         $data['base_currency'] =  $requestInstance->input('base_currency');
         $data['quote_currency'] =  $requestInstance->input('quote_currency', $data['base_currency']);
         $data['exchange_rate'] = $requestInstance->input('exchange_rate', 1);
-        $data['salesperson_contact_id'] = $requestInstance->input('salesperson_contact_id', null);
         $data['branch_id'] = $requestInstance->input('branch_id', null);
         $data['store_id'] = $requestInstance->input('store_id', null);
         $data['due_date'] = $requestInstance->input('due_date', null);
