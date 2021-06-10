@@ -46,9 +46,14 @@ class DebitNoteItem extends Model
         }
     }
 
-    public function txn()
+    public function debit_note()
     {
-        return $this->belongsTo('Rutatiina\FinancialAccounting\Models\Txn', 'txn_id');
+        return $this->belongsTo('Rutatiina\DebitNote\Models\DebitNote', 'debit_note_id', 'id');
+    }
+
+    public function taxes()
+    {
+        return $this->hasMany('Rutatiina\DebitNote\Models\DebitNoteItemTax', 'debit_note_item_id', 'id');
     }
 
 }

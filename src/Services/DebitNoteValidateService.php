@@ -80,8 +80,7 @@ class DebitNoteValidateService
         $data['date'] = $requestInstance->input('date');
         $data['debit_financial_account_code'] = $settings->financial_account_to_debit->code;
         $data['credit_financial_account_code'] = $settings->financial_account_to_credit->code;
-        $data['debit_contact_id'] = $requestInstance->contact_id;
-        $data['credit_contact_id'] = $requestInstance->contact_id;
+        $data['contact_id'] = $requestInstance->contact_id;
         $data['contact_name'] = $contact->name;
         $data['contact_address'] = trim($contact->shipping_address_street1 . ' ' . $contact->shipping_address_street2);
         $data['reference'] = $requestInstance->input('reference', null);
@@ -90,7 +89,6 @@ class DebitNoteValidateService
         $data['exchange_rate'] = $requestInstance->input('exchange_rate', 1);
         $data['branch_id'] = $requestInstance->input('branch_id', null);
         $data['store_id'] = $requestInstance->input('store_id', null);
-        $data['due_date'] = $requestInstance->input('due_date', null);
         $data['terms_and_conditions'] = $requestInstance->input('terms_and_conditions', null);
         $data['contact_notes'] = $requestInstance->input('contact_notes', null);
         $data['status'] = $requestInstance->input('status', null);
@@ -144,7 +142,7 @@ class DebitNoteValidateService
             'financial_account_code' => $settings->financial_account_to_debit->code,
             'effect' => 'debit',
             'total' => $data['total'],
-            'contact_id' => $data['debit_contact_id']
+            'contact_id' => $data['contact_id']
         ];
 
         //CR ledger
@@ -152,7 +150,7 @@ class DebitNoteValidateService
             'financial_account_code' => $settings->financial_account_to_credit->code,
             'effect' => 'credit',
             'total' => $data['total'],
-            'contact_id' => $data['credit_contact_id']
+            'contact_id' => $data['contact_id']
         ];
 
         //print_r($data); exit;

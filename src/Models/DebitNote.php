@@ -35,7 +35,6 @@ class DebitNote extends Model
     ];
     protected $appends = [
         'total_in_words',
-        'contact_id',
     ];
 
     /**
@@ -85,15 +84,12 @@ class DebitNote extends Model
         }
 
         //add the relationships
-        $attributes['type'] = [];
         $attributes['debit_account'] = [];
         $attributes['credit_account'] = [];
         $attributes['items'] = [];
         $attributes['ledgers'] = [];
         $attributes['comments'] = [];
-        $attributes['debit_contact'] = [];
-        $attributes['credit_contact'] = [];
-        $attributes['recurring'] = [];
+        $attributes['contact'] = [];
 
         return $attributes;
     }
@@ -112,18 +108,6 @@ class DebitNote extends Model
     {
         $f = new \NumberFormatter( locale_get_default(), \NumberFormatter::SPELLOUT );
         return ucfirst($f->format($this->total));
-    }
-
-    public function getContactIdAttribute()
-    {
-        if ($this->debit_contact_id == $this->credit_contact_id)
-        {
-            return $this->debit_contact_id;
-        }
-        else
-        {
-            return null;
-        }
     }
 
     public function debit_account()
@@ -153,17 +137,7 @@ class DebitNote extends Model
 
     public function contact()
     {
-        return $this->hasOne('Rutatiina\Contact\Models\Contact', 'id', 'debit_contact_id');
-    }
-
-    public function debit_contact()
-    {
-        return $this->hasOne('Rutatiina\Contact\Models\Contact', 'id', 'debit_contact_id');
-    }
-
-    public function credit_contact()
-    {
-        return $this->hasOne('Rutatiina\Contact\Models\Contact', 'id', 'credit_contact_id');
+        return $this->hasOne('Rutatiina\Contact\Models\Contact', 'id', 'contact_id');
     }
 
     public function item_taxes()

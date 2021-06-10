@@ -43,13 +43,12 @@ class DebitNoteService
 
         $attributes['_method'] = 'PATCH';
 
-        $attributes['contact_id'] = $attributes['debit_contact_id'];
         $attributes['contact']['currency'] = $txn->contact->currency_and_exchange_rate;
         $attributes['contact']['currencies'] = $txn->contact->currencies_and_exchange_rates;
 
         $attributes['taxes'] = json_decode('{}');
 
-        foreach ($attributes['items'] as $key => $item)
+        foreach ($attributes['items'] as &$item)
         {
             $selectedItem = [
                 'id' => $item['item_id'],
@@ -60,19 +59,19 @@ class DebitNoteService
                 'account_type' => null,
             ];
 
-            $attributes['items'][$key]['selectedItem'] = $selectedItem; #required
-            $attributes['items'][$key]['selectedTaxes'] = []; #required
-            $attributes['items'][$key]['displayTotal'] = 0; #required
+            $item['selectedItem'] = $selectedItem; #required
+            $item['selectedTaxes'] = []; #required
+            $item['displayTotal'] = 0; #required
 
             foreach ($item['taxes'] as $itemTax)
             {
-                $attributes['items'][$key]['selectedTaxes'][] = $taxes[$itemTax['tax_code']];
+                $item['selectedTaxes'][] = $taxes[$itemTax['tax_code']];
             }
 
-            $attributes['items'][$key]['rate'] = floatval($item['rate']);
-            $attributes['items'][$key]['quantity'] = floatval($item['quantity']);
-            $attributes['items'][$key]['total'] = floatval($item['total']);
-            $attributes['items'][$key]['displayTotal'] = $item['total']; #required
+            $item['rate'] = floatval($item['rate']);
+            $item['quantity'] = floatval($item['quantity']);
+            $item['total'] = floatval($item['total']);
+            $item['displayTotal'] = $item['total']; #required
         };
 
         return $attributes;
@@ -101,8 +100,7 @@ class DebitNoteService
             $Txn->date = $data['date'];
             $Txn->debit_financial_account_code = $data['debit_financial_account_code'];
             $Txn->credit_financial_account_code = $data['credit_financial_account_code'];
-            $Txn->debit_contact_id = $data['debit_contact_id'];
-            $Txn->credit_contact_id = $data['credit_contact_id'];
+            $Txn->contact_id = $data['contact_id'];
             $Txn->contact_name = $data['contact_name'];
             $Txn->contact_address = $data['contact_address'];
             $Txn->reference = $data['reference'];
@@ -180,7 +178,7 @@ class DebitNoteService
         {
             $Txn = DebitNote::with('items', 'ledgers')->findOrFail($data['id']);
 
-            if ($Txn->status == 'Approved')
+            if ($Txn->status == 'approved')
             {
                 self::$errors[] = 'Approved Transaction cannot be not be edited';
                 return false;
@@ -205,8 +203,7 @@ class DebitNoteService
             $Txn->date = $data['date'];
             $Txn->debit_financial_account_code = $data['debit_financial_account_code'];
             $Txn->credit_financial_account_code = $data['credit_financial_account_code'];
-            $Txn->debit_contact_id = $data['debit_contact_id'];
-            $Txn->credit_contact_id = $data['credit_contact_id'];
+            $Txn->contact_id = $data['contact_id'];
             $Txn->contact_name = $data['contact_name'];
             $Txn->contact_address = $data['contact_address'];
             $Txn->reference = $data['reference'];
@@ -275,7 +272,7 @@ class DebitNoteService
         {
             $Txn = DebitNote::findOrFail($id);
 
-            if ($Txn->status == 'Approved')
+            if ($Txn->status == 'approved')
             {
                 self::$errors[] = 'Approved Transaction cannot be not be deleted';
                 return false;
@@ -343,11 +340,9 @@ class DebitNoteService
 
         $attributes['contact']['currency'] = $txn->contact->currency_and_exchange_rate;
         $attributes['contact']['currencies'] = $txn->contact->currencies_and_exchange_rates;
-
-        $attributes['contact_id'] = $attributes['debit_contact_id'];
         $attributes['taxes'] = json_decode('{}');
 
-        foreach ($attributes['items'] as $key => $item)
+        foreach ($attributes['items'] as &$item)
         {
             $selectedItem = [
                 'id' => $item['item_id'],
@@ -358,17 +353,17 @@ class DebitNoteService
                 'account_type' => null,
             ];
 
-            $attributes['items'][$key]['selectedItem'] = $selectedItem; #required
-            $attributes['items'][$key]['selectedTaxes'] = []; #required
-            $attributes['items'][$key]['displayTotal'] = 0; #required
-            $attributes['items'][$key]['rate'] = floatval($item['rate']);
-            $attributes['items'][$key]['quantity'] = floatval($item['quantity']);
-            $attributes['items'][$key]['total'] = floatval($item['total']);
-            $attributes['items'][$key]['displayTotal'] = $item['total']; #required
+            $item['selectedItem'] = $selectedItem; #required
+            $item['selectedTaxes'] = []; #required
+            $item['displayTotal'] = 0; #required
+            $item['rate'] = floatval($item['rate']);
+            $item['quantity'] = floatval($item['quantity']);
+            $item['total'] = floatval($item['total']);
+            $item['displayTotal'] = $item['total']; #required
 
             foreach ($item['taxes'] as $itemTax)
             {
-                $attributes['items'][$key]['selectedTaxes'][] = $taxes[$itemTax['tax_code']];
+                $item['selectedTaxes'][] = $taxes[$itemTax['tax_code']];
             }
         };
 
