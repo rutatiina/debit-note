@@ -12,7 +12,7 @@ Route::group(['middleware' => ['web', 'auth', 'tenant', 'service.accounting']], 
 
     });
 
-    Route::resource('debit-notes/settings', 'Rutatiina\DebitNote\Http\Controllers\SettingsController');
+    Route::resource('debit-notes/settings', 'Rutatiina\DebitNote\Http\Controllers\DebitNoteSettingsController');
     Route::resource('debit-notes', 'Rutatiina\DebitNote\Http\Controllers\DebitNoteController');
 
 });

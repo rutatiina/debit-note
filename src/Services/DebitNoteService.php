@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Rutatiina\DebitNote\Models\DebitNote;
 use Rutatiina\FinancialAccounting\Services\AccountBalanceUpdateService;
 use Rutatiina\FinancialAccounting\Services\ContactBalanceUpdateService;
-use Rutatiina\DebitNote\Models\Setting;
+use Rutatiina\DebitNote\Models\DebitNoteSetting;
 use Rutatiina\Tax\Models\Tax;
 
 class DebitNoteService
@@ -24,7 +24,7 @@ class DebitNoteService
     public static function nextNumber()
     {
         $count = DebitNote::count();
-        $settings = Setting::first();
+        $settings = DebitNoteSetting::first();
 
         return $settings->number_prefix . (str_pad(($count + 1), $settings->minimum_number_length, "0", STR_PAD_LEFT)) . $settings->number_postfix;
     }

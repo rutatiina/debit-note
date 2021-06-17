@@ -4,7 +4,7 @@ namespace Rutatiina\DebitNote\Services;
 
 use Illuminate\Support\Facades\Validator;
 use Rutatiina\Contact\Models\Contact;
-use Rutatiina\DebitNote\Models\Setting;
+use Rutatiina\DebitNote\Models\DebitNoteSetting;
 
 class DebitNoteValidateService
 {
@@ -58,7 +58,7 @@ class DebitNoteValidateService
 
         // << data validation <<------------------------------------------------------------
 
-        $settings = Setting::has('financial_account_to_debit')
+        $settings = DebitNoteSetting::has('financial_account_to_debit')
             ->has('financial_account_to_credit')
             ->with(['financial_account_to_debit', 'financial_account_to_credit'])
             ->firstOrFail();
