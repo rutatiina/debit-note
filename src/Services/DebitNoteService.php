@@ -191,10 +191,10 @@ class DebitNoteService
             $Txn->comments()->delete();
 
             //reverse the account balances
-            AccountBalanceUpdateService::doubleEntry($Txn->ledgers->toArray(), true);
+            AccountBalanceUpdateService::doubleEntry($Txn->toArray(), true);
 
             //reverse the contact balances
-            ContactBalanceUpdateService::doubleEntry($Txn->ledgers->toArray(), true);
+            ContactBalanceUpdateService::doubleEntry($Txn->toArray(), true);
 
             $Txn->tenant_id = $data['tenant_id'];
             $Txn->created_by = Auth::id();
@@ -270,7 +270,7 @@ class DebitNoteService
 
         try
         {
-            $Txn = DebitNote::findOrFail($id);
+            $Txn = DebitNote::with('items', 'ledgers')->findOrFail($id);
 
             if ($Txn->status == 'approved')
             {
@@ -285,10 +285,10 @@ class DebitNoteService
             $Txn->comments()->delete();
 
             //reverse the account balances
-            AccountBalanceUpdateService::doubleEntry($Txn->ledgers, true);
+            AccountBalanceUpdateService::doubleEntry($Txn, true);
 
             //reverse the contact balances
-            ContactBalanceUpdateService::doubleEntry($Txn->ledgers, true);
+            ContactBalanceUpdateService::doubleEntry($Txn, true);
 
             $Txn->delete();
 
