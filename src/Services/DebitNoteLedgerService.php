@@ -4,7 +4,7 @@ namespace Rutatiina\DebitNote\Services;
 
 use Rutatiina\DebitNote\Models\DebitNoteLedger;
 
-class DebitNoteLedgersService
+class DebitNoteLedgerService
 {
     public static $errors = [];
 

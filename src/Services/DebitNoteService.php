@@ -125,10 +125,18 @@ class DebitNoteService
             DebitNoteItemService::store($data);
 
             //Save the ledgers >> $data['ledgers']; and update the balances
-            //NOTE >> no need to update ledgers since this is not an accounting entry
+            DebitNoteLedgerService::store($data);
 
             //check status and update financial account and contact balances accordingly
-            DebitNoteApprovalService::run($data);
+            $approval = DebitNoteApprovalService::run($data);
+
+            //update the status of the txn
+            if ($approval)
+            {
+                $Txn->status = $data['status'];
+                $Txn->balances_where_updated = 1;
+                $Txn->save();
+            }
 
             DB::connection('tenant')->commit();
 
