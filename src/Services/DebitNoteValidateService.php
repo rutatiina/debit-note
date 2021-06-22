@@ -22,6 +22,8 @@ class DebitNoteValidateService
         $customMessages = [
             //'total.in' => "Item total is invalid:\nItem total = item rate x item quantity",
 
+            'items.*.financial_account_code.required' => "The item account is required",
+
             'items.*.taxes.*.code.required' => "Tax code is required",
             'items.*.taxes.*.total.required' => "Tax total is required",
             //'items.*.taxes.*.exclusive.required' => "Tax exclusive amount is required",
@@ -36,6 +38,7 @@ class DebitNoteValidateService
             'memo' => 'string|nullable',
 
             'items' => 'required|array',
+            'items.*.financial_account_code' => 'required|numeric',
             'items.*.name' => 'required_without:type_id',
             'items.*.rate' => 'required|numeric',
             'items.*.quantity' => 'required|numeric|gt:0',
@@ -118,8 +121,8 @@ class DebitNoteValidateService
             $data['items'][] = [
                 'tenant_id' => $data['tenant_id'],
                 'created_by' => $data['created_by'],
-                'contact_id' => $item['contact_id'],
                 'item_id' => $item['item_id'],
+                'financial_account_code' => $item['financial_account_code'],
                 'name' => $item['name'],
                 'description' => $item['description'],
                 'quantity' => $item['quantity'],
@@ -135,7 +138,6 @@ class DebitNoteValidateService
 
         $data['taxable_amount'] = $taxableAmount;
         $data['total'] = $txnTotal;
-
 
         //DR ledger
         $data['ledgers'][] = [

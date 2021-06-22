@@ -42,12 +42,12 @@ class CreateRgDebitNotesTable extends Migration
             $table->unsignedDecimal('exchange_rate', 20,10);
             $table->unsignedDecimal('taxable_amount', 20,5);
             $table->unsignedDecimal('total', 20, 5);
+            $table->boolean('balances_where_updated')->default(0);
             $table->unsignedBigInteger('branch_id')->nullable();
             $table->unsignedBigInteger('store_id')->nullable();
             $table->string('status', 20)->nullable();
             $table->unsignedTinyInteger('sent')->nullable();
             $table->string('contact_notes', 250)->nullable();
-            $table->string('external_ref', 250)->nullable();
             $table->string('terms_and_conditions', 250)->nullable();
 
         });

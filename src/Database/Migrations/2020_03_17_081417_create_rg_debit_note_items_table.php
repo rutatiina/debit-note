@@ -28,7 +28,7 @@ class CreateRgDebitNoteItemsTable extends Migration
             $table->unsignedBigInteger('project_id')->nullable();
             $table->unsignedBigInteger('debit_note_id');
             $table->unsignedBigInteger('item_id')->nullable();
-            $table->unsignedBigInteger('contact_id')->nullable();
+            $table->unsignedBigInteger('financial_account_code')->nullable();
             $table->string('name', 100);
             $table->string('description', 250)->nullable();
             $table->unsignedInteger('quantity');

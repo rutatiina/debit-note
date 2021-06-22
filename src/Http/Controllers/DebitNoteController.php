@@ -116,7 +116,7 @@ class DebitNoteController extends Controller
             'status' => true,
             'messages' => ['Debit Note saved'],
             'number' => 0,
-            'callback' => URL::route('debit-notes.show', [$storeService->id], false)
+            'callback' => route('debit-notes.show', [$storeService->id], false)
         ];
     }
 
@@ -175,7 +175,7 @@ class DebitNoteController extends Controller
             'status' => true,
             'messages' => ['Debit note updated'],
             'number' => 0,
-            'callback' => URL::route('debit-notes.show', [$storeService->id], false)
+            'callback' => route('debit-notes.show', [$storeService->id], false)
         ];
     }
 
@@ -188,7 +188,7 @@ class DebitNoteController extends Controller
             return [
                 'status' => true,
                 'messages' => ['Debit note deleted'],
-                'callback' => URL::route('debit-notes.index', [], false)
+                'callback' => route('debit-notes.index', [], false)
             ];
         }
         else

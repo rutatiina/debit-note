@@ -99,7 +99,6 @@ class DebitNoteService
             $Txn->number = $data['number'];
             $Txn->date = $data['date'];
             $Txn->debit_financial_account_code = $data['debit_financial_account_code'];
-            $Txn->credit_financial_account_code = $data['credit_financial_account_code'];
             $Txn->contact_id = $data['contact_id'];
             $Txn->contact_name = $data['contact_name'];
             $Txn->contact_address = $data['contact_address'];
@@ -125,18 +124,12 @@ class DebitNoteService
             DebitNoteItemService::store($data);
 
             //Save the ledgers >> $data['ledgers']; and update the balances
-            DebitNoteLedgerService::store($data);
+            $Txn->ledgers()->createMany($data['ledgers']);
 
-            //check status and update financial account and contact balances accordingly
-            $approval = DebitNoteApprovalService::run($data);
+            //$Txn->refresh(); //make the ledgers relationship infor available
 
-            //update the status of the txn
-            if ($approval)
-            {
-                $Txn->status = $data['status'];
-                $Txn->balances_where_updated = 1;
-                $Txn->save();
-            }
+            //update financial account and contact balances accordingly
+            DebitNoteApprovalService::run($Txn);
 
             DB::connection('tenant')->commit();
 
@@ -147,20 +140,20 @@ class DebitNoteService
         {
             DB::connection('tenant')->rollBack();
 
-            Log::critical('Fatal Internal Error: Failed to save estimate to database');
+            Log::critical('Fatal Internal Error: Failed to save debit note to database');
             Log::critical($e);
 
             //print_r($e); exit;
             if (App::environment('local'))
             {
-                self::$errors[] = 'Error: Failed to save estimate to database.';
+                self::$errors[] = 'Error: Failed to save debit note to database.';
                 self::$errors[] = 'File: ' . $e->getFile();
                 self::$errors[] = 'Line: ' . $e->getLine();
                 self::$errors[] = 'Message: ' . $e->getMessage();
             }
             else
             {
-                self::$errors[] = 'Fatal Internal Error: Failed to save estimate to database. Please contact Admin';
+                self::$errors[] = 'Fatal Internal Error: Failed to save debit note to database. Please contact Admin';
             }
 
             return false;
@@ -192,78 +185,43 @@ class DebitNoteService
                 return false;
             }
 
-            //Delete affected relations
-            $Txn->ledgers()->delete();
-            $Txn->items()->delete();
-            $Txn->item_taxes()->delete();
-            $Txn->comments()->delete();
-
             //reverse the account balances
             AccountBalanceUpdateService::doubleEntry($Txn->toArray(), true);
 
             //reverse the contact balances
             ContactBalanceUpdateService::doubleEntry($Txn->toArray(), true);
 
-            $Txn->tenant_id = $data['tenant_id'];
-            $Txn->created_by = Auth::id();
-            $Txn->document_name = $data['document_name'];
-            $Txn->number = $data['number'];
-            $Txn->date = $data['date'];
-            $Txn->debit_financial_account_code = $data['debit_financial_account_code'];
-            $Txn->credit_financial_account_code = $data['credit_financial_account_code'];
-            $Txn->contact_id = $data['contact_id'];
-            $Txn->contact_name = $data['contact_name'];
-            $Txn->contact_address = $data['contact_address'];
-            $Txn->reference = $data['reference'];
-            $Txn->base_currency = $data['base_currency'];
-            $Txn->quote_currency = $data['quote_currency'];
-            $Txn->exchange_rate = $data['exchange_rate'];
-            $Txn->taxable_amount = $data['taxable_amount'];
-            $Txn->total = $data['total'];
-            $Txn->branch_id = $data['branch_id'];
-            $Txn->store_id = $data['store_id'];
-            $Txn->contact_notes = $data['contact_notes'];
-            $Txn->terms_and_conditions = $data['terms_and_conditions'];
-            $Txn->status = $data['status'];
+            //Delete affected relations
+            $Txn->ledgers()->delete();
+            $Txn->items()->delete();
+            $Txn->item_taxes()->delete();
+            $Txn->comments()->delete();
+            $Txn->delete();
 
-            $Txn->save();
-
-            $data['id'] = $Txn->id;
-
-            //print_r($data['items']); exit;
-
-            //Save the items >> $data['items']
-            DebitNoteItemService::store($data);
-
-            //Save the ledgers >> $data['ledgers']; and update the balances
-            DebitNoteLedgersService::store($data);
-
-            //check status and update financial account and contact balances accordingly
-            DebitNoteApprovalService::run($data);
+            $txnStore = self::store($requestInstance);
 
             DB::connection('tenant')->commit();
 
-            return $Txn;
-
+            return $txnStore;
         }
         catch (\Throwable $e)
         {
             DB::connection('tenant')->rollBack();
 
-            Log::critical('Fatal Internal Error: Failed to update estimate in database');
+            Log::critical('Fatal Internal Error: Failed to update debit note in database');
             Log::critical($e);
 
             //print_r($e); exit;
             if (App::environment('local'))
             {
-                self::$errors[] = 'Error: Failed to update estimate in database.';
+                self::$errors[] = 'Error: Failed to update debit note in database.';
                 self::$errors[] = 'File: ' . $e->getFile();
                 self::$errors[] = 'Line: ' . $e->getLine();
                 self::$errors[] = 'Message: ' . $e->getMessage();
             }
             else
             {
-                self::$errors[] = 'Fatal Internal Error: Failed to update estimate in database. Please contact Admin';
+                self::$errors[] = 'Fatal Internal Error: Failed to update debit note in database. Please contact Admin';
             }
 
             return false;
@@ -286,18 +244,17 @@ class DebitNoteService
                 return false;
             }
 
-            //Delete affected relations
-            $Txn->ledgers()->delete();
-            $Txn->items()->delete();
-            $Txn->item_taxes()->delete();
-            $Txn->comments()->delete();
-
             //reverse the account balances
             AccountBalanceUpdateService::doubleEntry($Txn, true);
 
             //reverse the contact balances
             ContactBalanceUpdateService::doubleEntry($Txn, true);
 
+            //Delete affected relations
+            $Txn->ledgers()->delete();
+            $Txn->items()->delete();
+            $Txn->item_taxes()->delete();
+            $Txn->comments()->delete();
             $Txn->delete();
 
             DB::connection('tenant')->commit();
@@ -309,20 +266,20 @@ class DebitNoteService
         {
             DB::connection('tenant')->rollBack();
 
-            Log::critical('Fatal Internal Error: Failed to delete estimate from database');
+            Log::critical('Fatal Internal Error: Failed to delete debit note from database');
             Log::critical($e);
 
             //print_r($e); exit;
             if (App::environment('local'))
             {
-                self::$errors[] = 'Error: Failed to delete estimate from database.';
+                self::$errors[] = 'Error: Failed to delete debit note from database.';
                 self::$errors[] = 'File: ' . $e->getFile();
                 self::$errors[] = 'Line: ' . $e->getLine();
                 self::$errors[] = 'Message: ' . $e->getMessage();
             }
             else
             {
-                self::$errors[] = 'Fatal Internal Error: Failed to delete estimate from database. Please contact Admin';
+                self::$errors[] = 'Fatal Internal Error: Failed to delete debit note from database. Please contact Admin';
             }
 
             return false;
@@ -384,22 +341,17 @@ class DebitNoteService
 
         if (strtolower($Txn->status) != 'draft')
         {
-            self::$errors[] = $Txn->status . ' transaction cannot be approved';
+            self::$errors[] = $Txn->status . ' debit note cannot be approved';
             return false;
         }
-
-        $data = $Txn->toArray();
 
         //start database transaction
         DB::connection('tenant')->beginTransaction();
 
         try
         {
-            DebitNoteApprovalService::run($data);
-
-            //update the status of the txn
             $Txn->status = 'approved';
-            $Txn->save();
+            DebitNoteApprovalService::run($Txn);
 
             DB::connection('tenant')->commit();
 
@@ -412,14 +364,14 @@ class DebitNoteService
             //print_r($e); exit;
             if (App::environment('local'))
             {
-                self::$errors[] = 'DB Error: Failed to approve transaction.';
+                self::$errors[] = 'DB Error: Failed to approve debit note.';
                 self::$errors[] = 'File: ' . $e->getFile();
                 self::$errors[] = 'Line: ' . $e->getLine();
                 self::$errors[] = 'Message: ' . $e->getMessage();
             }
             else
             {
-                self::$errors[] = 'Fatal Internal Error: Failed to approve transaction. Please contact Admin';
+                self::$errors[] = 'Fatal Internal Error: Failed to approve debit note. Please contact Admin';
             }
 
             return false;
