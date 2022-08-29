@@ -181,7 +181,7 @@ class DebitNoteService
 
             if ($Txn->status == 'approved')
             {
-                self::$errors[] = 'Approved Transaction cannot be not be edited';
+                self::$errors[] = 'Approved debit note cannot be not be edited';
                 return false;
             }
 
@@ -240,7 +240,7 @@ class DebitNoteService
 
             if ($Txn->status == 'approved')
             {
-                self::$errors[] = 'Approved Transaction cannot be not be deleted';
+                self::$errors[] = 'Approved Debit note(s) cannot be not be deleted';
                 return false;
             }
 
