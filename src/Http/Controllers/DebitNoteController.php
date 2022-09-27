@@ -2,15 +2,16 @@
 
 namespace Rutatiina\DebitNote\Http\Controllers;
 
-use Rutatiina\DebitNote\Services\DebitNoteService;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Request as FacadesRequest;
+use Illuminate\Support\Facades\Auth;
 use Rutatiina\DebitNote\Models\DebitNote;
-use Rutatiina\FinancialAccounting\Traits\FinancialAccountingTrait;
 use Rutatiina\Contact\Traits\ContactTrait;
+use Rutatiina\DebitNote\Models\DebitNoteSetting;
+use Rutatiina\DebitNote\Services\DebitNoteService;
+use Illuminate\Support\Facades\Request as FacadesRequest;
+use Rutatiina\FinancialAccounting\Traits\FinancialAccountingTrait;
 
 class DebitNoteController extends Controller
 {
@@ -87,9 +88,7 @@ class DebitNoteController extends Controller
 
             'item_id' => '',
             'contact_id' => '',
-            'units' => '',
-            'batch' => '',
-            'expiry' => ''
+            'financial_account_code' => 0,
         ]];
 
         return [
