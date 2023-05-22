@@ -2,15 +2,16 @@
 
 namespace Rutatiina\DebitNote\Services;
 
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Auth;
+use Rutatiina\Tax\Models\Tax;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Rutatiina\DebitNote\Models\DebitNote;
+use Rutatiina\DebitNote\Models\DebitNoteSetting;
+use Rutatiina\FinancialAccounting\Services\ItemBalanceUpdateService;
 use Rutatiina\FinancialAccounting\Services\AccountBalanceUpdateService;
 use Rutatiina\FinancialAccounting\Services\ContactBalanceUpdateService;
-use Rutatiina\DebitNote\Models\DebitNoteSetting;
-use Rutatiina\Tax\Models\Tax;
 
 class DebitNoteService
 {
@@ -192,6 +193,9 @@ class DebitNoteService
             //reverse the contact balances
             ContactBalanceUpdateService::doubleEntry($Txn->toArray(), true);
 
+            //Update the item balances
+            ItemBalanceUpdateService::entry($Txn->toArray(), true);
+
             //Delete affected relations
             $Txn->ledgers()->delete();
             $Txn->items()->delete();
@@ -250,6 +254,9 @@ class DebitNoteService
 
             //reverse the contact balances
             ContactBalanceUpdateService::doubleEntry($Txn, true);
+
+            //Update the item balances
+            ItemBalanceUpdateService::entry($Txn, true);
 
             //Delete affected relations
             $Txn->ledgers()->delete();
