@@ -133,6 +133,7 @@ class DebitNoteController extends Controller
             'taxes',
             'number_string',
             'total_in_words',
+            'ledgers'
         ]);
 
         return $txn->toArray();

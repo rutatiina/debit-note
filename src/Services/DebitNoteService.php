@@ -125,10 +125,7 @@ class DebitNoteService
             //Save the items >> $data['items']
             DebitNoteItemService::store($data);
 
-            //Save the ledgers >> $data['ledgers']; and update the balances
-            $Txn->ledgers()->createMany($data['ledgers']);
-
-            //$Txn->refresh(); //make the ledgers relationship infor available
+            $Txn->refresh();
 
             //update financial account and contact balances accordingly
             DebitNoteApprovalService::run($Txn);
@@ -179,7 +176,7 @@ class DebitNoteService
 
         try
         {
-            $Txn = DebitNote::with('items', 'ledgers')->findOrFail($data['id']);
+            $Txn = DebitNote::with('items')->findOrFail($data['id']);
 
             if ($Txn->status == 'approved')
             {
@@ -197,7 +194,6 @@ class DebitNoteService
             ItemBalanceUpdateService::entry($Txn->toArray(), true);
 
             //Delete affected relations
-            $Txn->ledgers()->delete();
             $Txn->items()->delete();
             $Txn->item_taxes()->delete();
             $Txn->comments()->delete();
@@ -241,7 +237,7 @@ class DebitNoteService
 
         try
         {
-            $Txn = DebitNote::with('items', 'ledgers')->findOrFail($id);
+            $Txn = DebitNote::with('items')->findOrFail($id);
 
             if ($Txn->status == 'approved')
             {
@@ -258,11 +254,6 @@ class DebitNoteService
             //Update the item balances
             ItemBalanceUpdateService::entry($Txn, true);
 
-            //Delete affected relations
-            $Txn->ledgers()->delete();
-            $Txn->items()->delete();
-            $Txn->item_taxes()->delete();
-            $Txn->comments()->delete();
             $Txn->delete();
 
             DB::connection('tenant')->commit();
@@ -345,7 +336,7 @@ class DebitNoteService
 
     public static function approve($id)
     {
-        $Txn = DebitNote::with(['ledgers'])->findOrFail($id);
+        $Txn = DebitNote::findOrFail($id);
 
         if (strtolower($Txn->status) != 'draft')
         {
